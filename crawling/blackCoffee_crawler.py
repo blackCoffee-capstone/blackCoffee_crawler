@@ -33,17 +33,16 @@ def login(driver):
     driver.find_element(by=By.XPATH, value='//*[@id="loginForm"]/div/div[3]').click()
     driver.implicitly_wait(30)
     time.sleep(random.uniform(4, 6))
-    print('로그인')
     
 def location(driver, lists):
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
-    place = soup.find_all("div", class_='_aacl _aacn _aacu _aacy _aada _aade')
-    driver.implicitly_wait(30)
-    time.sleep(random.uniform(5, 7))
     
-    if len(place) != 0:
-        place = place[0].get_text()
+    try:
+        place = soup.find_all("div", class_='_aacl _aacn _aacu _aacy _aada _aade')
+        driver.implicitly_wait(30)
+        time.sleep(random.uniform(5, 7))
+        place = place.get_text()
         place_name = re.compile('[0-9가-힣ㄱ-ㅎ.]+').findall(place)
         if place_name:
             place_name = ' '.join(place_name)
@@ -58,7 +57,7 @@ def location(driver, lists):
         
         driver.implicitly_wait(30)
         time.sleep(random.uniform(5, 7))
-    else:
+    except:
         print('위치 기반 없음')
     
     driver.implicitly_wait(30)
@@ -79,21 +78,18 @@ def datetime_like_text(driver, lists, soup):
         one_like = soup.find_all('div', class_='_aacl _aaco _aacw _aacx _aad6')
         if one_like:
             lists.append(1)
-            print('좋아요(1) 추가')
         elif zero:
             lists.append(0)
-            print('좋아요(0) 추가')
         else:
             views = soup.find_all('div', class_='_aacl _aaco _aacw _aacx _aad6 _aade')
             if len(views):
                 view = views[1].get_text().split()[1].strip("회") + '(조회수)'
                 lists.append(view)
-                print('조회수 추가')
     else: 
         like_pre = likes[0]
         like_num = like_pre.get_text().split()[1].strip("개")
         lists.append(like_num)
-        print('좋아요 추가')
+
     driver.implicitly_wait(30)
     time.sleep(random.uniform(4, 6))
     
@@ -101,13 +97,11 @@ def datetime_like_text(driver, lists, soup):
     lists.append(photo_url)
     driver.implicitly_wait(30)
     time.sleep(random.uniform(4, 6))
-    print('사진 링크 추가')
        
     infos = soup.find("span", class_='_aacl _aaco _aacu _aacx _aad7 _aade').get_text()
     lists.append(infos)
     driver.implicitly_wait(30)
     time.sleep(random.uniform(4, 6))
-    print('본문 추가')
     
     return lists
 
@@ -139,7 +133,6 @@ def insert_link(driver, lists, step, nun):
             print(full_link)
             driver.implicitly_wait(30)
             time.sleep(random.uniform(5, 7))
-            print('게시물 접속')
             
             html_text = driver.page_source
             soup_text = BeautifulSoup(html_text, 'html.parser')
@@ -161,7 +154,6 @@ def insert_link(driver, lists, step, nun):
                 continue            
             
             lists.append(full_link)
-            print('게시물 링크 추가')
             
             lists = datetime_like_text(driver, lists, soup_text)
         
